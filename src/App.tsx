@@ -68,6 +68,60 @@ function App() {
   }`;
   const strokeDashoffset = 0;
 
+  // 다이얼 숫자와 눈금 생성
+  const generateDialElements = () => {
+    const elements = [];
+
+    for (let i = 0; i <= 60; i++) {
+      const angle = i * 6; // 0분이 12시 방향, 시계방향으로 진행
+      const radian = (angle * Math.PI) / 180;
+      const x = 125 + 110 * Math.cos(radian);
+      const y = 125 + 110 * Math.sin(radian);
+
+      if (i % 5 === 0 && i !== 60) {
+        // 5분 단위 숫자 (60 제외)
+        const numberAngle = angle + 90; // 텍스트 회전 보정
+        elements.push(
+          <text
+            key={`number-${i}`}
+            x={x}
+            y={y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="12"
+            fontWeight="bold"
+            fill="#374151"
+            transform={`rotate(${numberAngle} ${x} ${y})`}
+            style={{ zIndex: 10 }}
+          >
+            {i}
+          </text>
+        );
+      } else if (i !== 60) {
+        // 1분 단위 눈금 (60 제외)
+        const tickLength = 8;
+        const tickX1 = 125 + (120 - tickLength) * Math.cos(radian);
+        const tickY1 = 125 + (120 - tickLength) * Math.sin(radian);
+        const tickX2 = 125 + 120 * Math.cos(radian);
+        const tickY2 = 125 + 120 * Math.sin(radian);
+
+        elements.push(
+          <line
+            key={`tick-${i}`}
+            x1={tickX1}
+            y1={tickY1}
+            x2={tickX2}
+            y2={tickY2}
+            stroke="#9ca3af"
+            strokeWidth="1"
+          />
+        );
+      }
+    }
+
+    return elements;
+  };
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -81,8 +135,9 @@ function App() {
               r="120"
               fill="none"
               stroke="#f3f4f6"
-              strokeWidth="8"
+              strokeWidth="12"
             />
+
             {/* 진행 원 (빨간색) - 설정된 시간만큼만 표시되고 줄어듦 */}
             <circle
               cx="125"
@@ -90,12 +145,15 @@ function App() {
               r="120"
               fill="none"
               stroke="#ef4444"
-              strokeWidth="8"
+              strokeWidth="12"
               strokeLinecap="round"
               strokeDasharray={strokeDasharray}
               strokeDashoffset={strokeDashoffset}
               className="transition-all duration-1000 ease-linear"
             />
+
+            {/* 다이얼 숫자와 눈금 - 빨간 원 위에 표시 */}
+            {generateDialElements()}
           </svg>
 
           {/* 중앙 시간 표시 */}
